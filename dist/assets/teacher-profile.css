@@ -311,15 +311,8 @@ body.teacher-profile-preview { margin: 0; background: #fff; }
   text-indent: 0 !important;
 }
 
-.admission-panel { padding: 10px 0 10px 18px; border-left: 4px solid var(--profile-blue); }
-.admission-panel p { margin: 0 0 7px; }
-.email-action {
-  display: inline-flex;
-  margin-top: 4px;
-  padding: 7px 13px;
-  color: #fff !important;
-  background: var(--profile-blue);
-}
+.admission-panel { padding: 0; border: 0; background: none; }
+.admission-panel p { margin: 8px 0; text-align: justify; text-indent: 2em; }
 .related-links li { position: relative; padding-left: 17px; }
 .related-links li::before {
   content: "●";
