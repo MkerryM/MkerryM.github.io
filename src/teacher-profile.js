@@ -60,6 +60,7 @@ if (dataNode && form) {
   const year = form.elements.namedItem("year");
   const type = form.elements.namedItem("type");
   const reset = form.querySelector("[data-reset]");
+  const tools = form.closest("details");
   const items = [...document.querySelectorAll("[data-publication-item]")];
   const groups = [...document.querySelectorAll("[data-publication-group]")];
   const resultCount = document.querySelector("#publication-result-count");
@@ -106,6 +107,7 @@ if (dataNode && form) {
   search.value = params.get("q") || "";
   year.value = params.get("year") || "";
   type.value = params.get("type") || "";
+  if (tools && (search.value || year.value || type.value)) tools.open = true;
   update({ pushUrl: false });
 
   let searchTimer;
@@ -123,6 +125,7 @@ if (dataNode && form) {
 
   document.querySelectorAll("[data-research-filter]").forEach((link) => {
     link.addEventListener("click", () => {
+      if (tools) tools.open = true;
       search.value = link.dataset.researchFilter;
       year.value = "";
       type.value = "";

@@ -164,16 +164,41 @@ body.teacher-profile-preview { margin: 0; background: #fff; }
 .project-list h3 { margin: 0; font-size: 16px; }
 .project-list p { margin: 0; color: var(--profile-muted); }
 
-/* 论文功能区延续同一页面语言，交互控件不改变参考页的正文骨架。 */
+/* 论文列表严格采用参考页的两行式学术主页排版。 */
+.profile-section--publications h2 {
+  margin-bottom: 24px;
+  border-bottom-width: 1px;
+}
+.profile-section--publications h2::after { display: none; }
+.publication-tools {
+  position: relative;
+  z-index: 1;
+  margin: -66px 0 30px;
+  text-align: right;
+}
+.publication-tools > summary {
+  display: inline-block;
+  padding: 8px 0;
+  color: var(--profile-blue);
+  font-size: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+.publication-tools > summary::-webkit-details-marker { display: none; }
+.publication-tools > summary::after { content: "＋"; margin-left: 6px; }
+.publication-tools[open] > summary::after { content: "－"; }
+.publication-tools__panel {
+  margin-top: 12px;
+  padding: 14px 16px 8px;
+  background: #f7f8fa;
+  border: 1px solid #e0e3e7;
+  text-align: left;
+}
 .publication-filters {
   display: grid;
   grid-template-columns: minmax(220px, 2fr) minmax(130px, .65fr) minmax(130px, .65fr) auto;
   gap: 12px;
   align-items: end;
-  margin: 18px 0 0;
-  padding: 16px;
-  background: #f5f7f9;
-  border: 1px solid #dde3e9;
 }
 .filter-field { display: grid; gap: 5px; }
 .filter-field label { font-size: 14px; font-weight: 700; }
@@ -181,17 +206,17 @@ body.teacher-profile-preview { margin: 0; background: #fff; }
 .filter-field select,
 .filter-reset {
   width: 100%;
-  min-height: 42px;
-  padding: 7px 10px;
+  min-height: 40px;
+  padding: 6px 10px;
   background: #fff;
   border: 1px solid #b8c1ca;
   border-radius: 0;
   font: inherit;
-  font-size: 15px;
+  font-size: 14px;
 }
 .filter-reset {
   width: auto;
-  min-width: 78px;
+  min-width: 76px;
   color: #fff;
   background: var(--profile-blue);
   border-color: var(--profile-blue);
@@ -203,77 +228,79 @@ body.teacher-profile-preview { margin: 0; background: #fff; }
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px 20px;
-  margin: 9px 0 18px;
+  margin: 8px 0 0;
   color: var(--profile-muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 .publication-summary p,
 .profile-section .publication-summary p { margin: 0; text-indent: 0; }
-.publication-list { display: grid; gap: 20px; }
-.publication-year[hidden],
+.publication-list { display: grid; gap: 30px; }
+.publication-group[hidden],
 .publication-item[hidden] { display: none; }
-.publication-year h3 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0 0 3px;
-  color: var(--profile-blue);
+.publication-group h3 {
+  margin: 0 0 14px;
+  color: #4d5660;
   font-size: 19px;
+  font-weight: 400;
+}
+.publication-group ol { margin: 0; padding: 0; list-style: none; }
+.publication-item {
+  display: grid;
+  grid-template-columns: 27px minmax(0, 1fr);
+  gap: 0;
+  padding: 0 0 18px;
+}
+.publication-number {
+  color: #454545;
+  font-size: 17px;
   font-variant-numeric: tabular-nums;
+  line-height: 1.75;
 }
-.publication-year h3::after { content: ""; flex: 1; height: 1px; background: #d7dfe7; }
-.publication-year ol { margin: 0; padding: 0; list-style: none; }
-.publication-item { padding: 10px 0 12px; border-bottom: 1px dashed #d7d7d7; }
-.publication-citation { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 0; }
-.publication-citation p { margin: 0; line-height: 1.72; overflow-wrap: anywhere; }
-.publication-number { color: #555; font-variant-numeric: tabular-nums; }
-.publication-title {
-  color: var(--profile-blue-dark);
-  font-weight: 700;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+.publication-body { min-width: 0; }
+.publication-heading,
+.publication-detail { margin: 0; overflow-wrap: anywhere; }
+.publication-heading { font-size: 17px; line-height: 1.75; }
+.publication-venue { margin-right: 3px; color: #f5222d; }
+.publication-title,
+.faculty-profile .publication-title {
+  color: #001eff;
+  font-weight: 400;
+  text-decoration: none;
 }
-.publication-meta,
-.publication-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-left: 44px; }
-.publication-meta { margin-top: 7px; }
-.publication-actions { margin-top: 8px; }
-.publication-label,
-.publication-note {
-  display: inline-flex;
+.publication-title:hover,
+.faculty-profile .publication-title:hover { color: #0014b8; text-decoration: underline; }
+.publication-detail {
+  margin-top: 10px;
+  color: #353c44;
+  font-size: 16px;
+  line-height: 1.9;
+}
+.publication-detail strong { font-weight: 700; }
+.publication-corresponding { margin-left: 8px; white-space: nowrap; }
+.publication-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   align-items: center;
-  min-height: 24px;
-  padding: 1px 7px;
+  margin-top: 1px;
+  color: #8a8f96;
   font-size: 13px;
+  line-height: 1.7;
 }
-.publication-label {
-  color: var(--profile-blue-dark);
-  background: var(--profile-blue-soft);
-  border: 1px solid #c7daec;
-  font-weight: 700;
-}
-.publication-note { color: var(--profile-muted); background: #f3f3f3; }
 .publication-actions a,
 .publication-actions button {
-  min-height: 31px;
-  padding: 4px 9px;
-  color: var(--profile-blue);
-  background: #fff;
-  border: 1px solid #9ebad2;
+  min-height: auto;
+  padding: 0;
+  color: #687887;
+  background: transparent;
+  border: 0;
   border-radius: 0;
   font: inherit;
-  font-size: 13px;
-  line-height: 1.35;
   text-decoration: none;
   cursor: pointer;
 }
 .publication-actions a:hover,
-.publication-actions button:hover {
-  color: #fff;
-  background: var(--profile-blue);
-  border-color: var(--profile-blue);
-  text-decoration: none;
-}
+.publication-actions button:hover { color: var(--profile-blue); text-decoration: underline; }
 .publication-empty {
   margin: 12px 0 0;
   padding: 14px;
@@ -352,9 +379,12 @@ body.teacher-profile-preview { margin: 0; background: #fff; }
   .publication-filters { grid-template-columns: 1fr; }
   .filter-field--search { grid-column: auto; }
   .filter-reset { width: 100%; }
-  .publication-citation { grid-template-columns: 36px minmax(0, 1fr); }
-  .publication-meta,
-  .publication-actions { margin-left: 36px; }
+  .publication-tools { margin-top: -59px; }
+  .publication-tools__panel { padding-inline: 10px; }
+  .publication-item { grid-template-columns: 24px minmax(0, 1fr); }
+  .publication-heading,
+  .publication-number { font-size: 16px; }
+  .publication-detail { font-size: 16px; line-height: 1.75; }
 }
 
 @media (prefers-reduced-motion: reduce) {

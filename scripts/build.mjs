@@ -74,70 +74,130 @@ const yearOf = (record) => String(record.issued["date-parts"][0][0]);
 const sorted = [...records].sort((a, b) => Number(yearOf(b)) - Number(yearOf(a)) || records.indexOf(a) - records.indexOf(b));
 const years = [...new Set(sorted.map(yearOf))];
 
-let publicationNumber = 0;
-const groupMarkup = years.map((year) => {
-  const entries = sorted.filter((record) => yearOf(record) === year).map((record) => {
-    publicationNumber += 1;
-    const citation = citeText(record).replace(/^\[\d+\]\s*/, "");
-    const escapedCitation = escapeHtml(citation);
-    const escapedTitle = escapeHtml(record.title);
-    const linkedCitation = escapedCitation.includes(escapedTitle)
-      ? escapedCitation.replace(escapedTitle, `<a class="publication-title" href="${escapeHtml(record.URL)}" target="_blank" rel="noopener noreferrer">${escapedTitle}<span class="sr-only">（在新标签页打开）</span></a>`)
-      : escapedCitation;
+const venueAliases = new Map([
+  ["Information Fusion", "Information Fusion"],
+  ["Knowledge-Based Systems", "KBS"],
+  ["Neurocomputing", "Neurocomputing"],
+  ["Tsinghua Science and Technology", "TST"],
+  ["IEEE Transactions on Computational Social Systems", "IEEE TCSS"],
+  ["Information Processing & Management", "IP&M"],
+  ["Expert Systems with Applications", "ESWA"],
+  ["Information Sciences", "Information Sciences"],
+  ["Journal of the Franklin Institute", "JFI"],
+  ["The Computer Journal", "Computer Journal"]
+]);
+
+const shortVenueOf = (record) => {
+  const faculty = record._faculty || {};
+  if (faculty.venueShort) return faculty.venueShort;
+  if ((faculty.searchTerms || []).length) return faculty.searchTerms[0];
+  if (venueAliases.has(record["container-title"])) return venueAliases.get(record["container-title"]);
+  const parenthetical = record["container-title"].match(/\(([A-Z][A-Z0-9&-]{1,})(?:\s+\d{4})?\)/);
+  if (parenthetical) return parenthetical[1];
+  const acronym = record["container-title"].match(/\b[A-Z][A-Z0-9&-]{2,}\b/);
+  return acronym?.[0] || record["container-title"];
+};
+
+const normalizeName = (value) => value.toLocaleLowerCase("en-US").replace(/[^a-z]/g, "");
+const authorsMarkup = (record) => {
+  const faculty = record._faculty || {};
+  const corresponding = new Set((faculty.corresponding || []).map(normalizeName));
+  return record.author.map((author) => {
+    const fullName = `${author.given} ${author.family}`.trim();
+    const isCorresponding = corresponding.has(normalizeName(fullName));
+    const isProfileOwner = normalizeName(fullName) === "guangquanlu";
+    const content = `${escapeHtml(fullName)}${isCorresponding ? "*" : ""}`;
+    return isProfileOwner ? `<strong>${content}</strong>` : content;
+  }).join(", ");
+};
+
+const sourceMarkup = (record) => {
+  const year = yearOf(record);
+  if (record.type === "paper-conference") {
+    return `in ${escapeHtml(record["container-title"])}, ${year}.`;
+  }
+  const volumeIssue = record.volume
+    ? `, ${escapeHtml(record.volume)}${record.issue ? `(${escapeHtml(record.issue)})` : ""}`
+    : "";
+  const pages = record.page ? `: ${escapeHtml(record.page)}` : "";
+  return `${escapeHtml(record["container-title"])}${volumeIssue}${pages}, ${year}.`;
+};
+
+const publicationKinds = [
+  { type: "paper-conference", id: "conference", title: "会议论文" },
+  { type: "article-journal", id: "journal", title: "期刊论文" }
+];
+
+const groupMarkup = publicationKinds.map((kind) => {
+  const entries = sorted.filter((record) => record.type === kind.type).map((record, index) => {
     const faculty = record._faculty || {};
-    const labels = (faculty.labels || []).map((label) => `<span class="publication-label">${escapeHtml(label)}</span>`).join("");
+    const year = yearOf(record);
+    const yearShort = year.slice(-2);
+    const labelSuffix = (faculty.labels || []).length ? `, ${(faculty.labels || []).join(", ")}` : "";
+    const venueLabel = `(${shortVenueOf(record)} ${yearShort}${labelSuffix})`;
     const corresponding = (faculty.corresponding || []).length
-      ? `<span class="publication-note">通讯作者：${escapeHtml(faculty.corresponding.join("、"))}</span>`
+      ? `<span class="publication-corresponding">（通讯作者）</span>`
       : "";
     const searchText = [record.title, record["container-title"], ...(record.author || []).flatMap((author) => [author.given, author.family, `${author.given} ${author.family}`]), ...(faculty.labels || []), ...(faculty.searchTerms || [])]
       .join(" ").toLocaleLowerCase("zh-CN");
     return `
             <li class="publication-item" data-publication-item data-id="${escapeHtml(record.id)}" data-year="${year}" data-type="${escapeHtml(record.type)}" data-search="${escapeHtml(searchText)}">
-              <div class="publication-citation"><span class="publication-number">[${publicationNumber}]</span><p>${linkedCitation}</p></div>
-              <div class="publication-meta">${labels}${corresponding}</div>
-              <div class="publication-actions" aria-label="${escapeHtml(record.title)} 的操作">
-                <a href="${escapeHtml(record.URL)}" target="_blank" rel="noopener noreferrer">DOI<span class="sr-only">（在新标签页打开）</span></a>
-                <button type="button" data-copy-style="gbt" data-publication-id="${escapeHtml(record.id)}">复制 GB/T</button>
-                <button type="button" data-copy-style="ieee" data-publication-id="${escapeHtml(record.id)}">复制 IEEE</button>
-                <button type="button" data-copy-style="bibtex" data-publication-id="${escapeHtml(record.id)}">复制 BibTeX</button>
+              <span class="publication-number">${index + 1}.</span>
+              <div class="publication-body">
+                <p class="publication-heading"><span class="publication-venue">${escapeHtml(venueLabel)}</span><a class="publication-title" href="${escapeHtml(record.URL)}" target="_blank" rel="noopener noreferrer">${escapeHtml(record.title)}<span class="sr-only">（在新标签页打开）</span></a></p>
+                <p class="publication-detail">${authorsMarkup(record)}. ${sourceMarkup(record)} ${corresponding}</p>
+                <div class="publication-actions" aria-label="${escapeHtml(record.title)} 的操作">
+                  <a href="${escapeHtml(record.URL)}" target="_blank" rel="noopener noreferrer">DOI<span class="sr-only">（在新标签页打开）</span></a>
+                  <span aria-hidden="true">·</span>
+                  <button type="button" data-copy-style="gbt" data-publication-id="${escapeHtml(record.id)}">复制 GB/T</button>
+                  <span aria-hidden="true">·</span>
+                  <button type="button" data-copy-style="ieee" data-publication-id="${escapeHtml(record.id)}">复制 IEEE</button>
+                  <span aria-hidden="true">·</span>
+                  <button type="button" data-copy-style="bibtex" data-publication-id="${escapeHtml(record.id)}">复制 BibTeX</button>
+                </div>
               </div>
             </li>`;
   }).join("");
   return `
-          <section class="publication-year" data-publication-group data-year-group="${year}" aria-labelledby="publication-year-${year}">
-            <h3 id="publication-year-${year}">${year}</h3>
+          <section class="publication-group" data-publication-group data-publication-kind="${kind.type}" aria-labelledby="publication-group-${kind.id}">
+            <h3 id="publication-group-${kind.id}">${kind.title}</h3>
             <ol>${entries}
             </ol>
           </section>`;
 }).join("");
 
 const filters = `
-        <form id="publication-filters" class="publication-filters" role="search" aria-label="论文检索">
-          <div class="filter-field filter-field--search">
-            <label for="publication-search">关键词</label>
-            <input id="publication-search" name="q" type="search" placeholder="搜索题名、作者或期刊/会议" autocomplete="off">
+        <details class="publication-tools">
+          <summary>论文检索与引用工具</summary>
+          <div class="publication-tools__panel">
+            <form id="publication-filters" class="publication-filters" role="search" aria-label="论文检索">
+              <div class="filter-field filter-field--search">
+                <label for="publication-search">关键词</label>
+                <input id="publication-search" name="q" type="search" placeholder="搜索题名、作者或期刊/会议" autocomplete="off">
+              </div>
+              <div class="filter-field">
+                <label for="publication-year">年份</label>
+                <select id="publication-year" name="year">
+                  <option value="">全部年份</option>
+                  ${years.map((year) => `<option value="${year}">${year}</option>`).join("")}
+                </select>
+              </div>
+              <div class="filter-field">
+                <label for="publication-type">类型</label>
+                <select id="publication-type" name="type">
+                  <option value="">全部类型</option>
+                  <option value="article-journal">期刊论文</option>
+                  <option value="paper-conference">会议论文</option>
+                </select>
+              </div>
+              <button class="filter-reset" type="button" data-reset>重置</button>
+            </form>
+            <div class="publication-summary">
+              <p id="publication-result-count">显示 19 / 19 篇</p>
+              <p>支持复制 GB/T 7714—2015、IEEE 与 BibTeX</p>
+            </div>
           </div>
-          <div class="filter-field">
-            <label for="publication-year">年份</label>
-            <select id="publication-year" name="year">
-              <option value="">全部年份</option>
-              ${years.map((year) => `<option value="${year}">${year}</option>`).join("")}
-            </select>
-          </div>
-          <div class="filter-field">
-            <label for="publication-type">类型</label>
-            <select id="publication-type" name="type">
-              <option value="">全部类型</option>
-              <option value="article-journal">期刊论文</option>
-              <option value="paper-conference">会议论文</option>
-            </select>
-          </div>
-          <button class="filter-reset" type="button" data-reset>重置</button>
-        </form>
-        <div class="publication-summary">
-          <p id="publication-result-count">显示 19 / 19 篇</p>
-          <p>默认按 GB/T 7714—2015 格式显示</p>
-        </div>
+        </details>
         <div id="publication-list" class="publication-list">${groupMarkup}
         </div>
         <p id="publication-empty" class="publication-empty" hidden>没有符合当前条件的论文，请调整关键词或筛选条件。</p>
@@ -167,4 +227,4 @@ ${article}
 `;
 await fs.writeFile(files.cms, cmsFragment, "utf8");
 
-console.log(`Built ${records.length} publications across ${years.length} year groups.`);
+console.log(`Built ${records.length} publications in ${publicationKinds.length} type groups across ${years.length} years.`);
