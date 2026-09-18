@@ -130,8 +130,7 @@ body.teacher-profile-preview { margin: 0; background: #fff; }
 .service-grid p { display: inline; margin: 0 0 0 8px; }
 
 .timeline,
-.achievement-list,
-.related-links { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.achievement-list { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
 .timeline li,
 .achievement-list li {
   display: grid;
@@ -313,16 +312,6 @@ body.teacher-profile-preview { margin: 0; background: #fff; }
 
 .admission-panel { padding: 0; border: 0; background: none; }
 .admission-panel p { margin: 8px 0; text-align: justify; text-indent: 2em; }
-.related-links li { position: relative; padding-left: 17px; }
-.related-links li::before {
-  content: "●";
-  position: absolute;
-  left: 0;
-  top: 6px;
-  color: var(--profile-blue);
-  font-size: 9px;
-}
-
 .sr-only {
   position: absolute !important;
   width: 1px !important;
