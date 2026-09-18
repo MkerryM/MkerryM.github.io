@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>首页导航</title>
+    <style>
+        :root {
+            --bg-1: #05070c;
+            --bg-2: #0a0f17;
+            --accent: #35f0d0;
+            --accent-2: #ff7edb;
+            --text: #edf6ff;
+            --muted: #9fb4c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Bodoni MT", "Didot", "Garamond", serif;
+            color: var(--text);
+            min-height: 100vh;
+            background: radial-gradient(1200px 600px at 80% 10%, #121b2a 0%, transparent 55%),
+                radial-gradient(800px 500px at 10% 20%, #0c1524 0%, transparent 60%),
+                linear-gradient(135deg, var(--bg-1), var(--bg-2));
+            overflow-x: hidden;
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            mix-blend-mode: soft-light;
+            z-index: 0;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.6;
+            animation: float 14s ease-in-out infinite;
+        }
+
+        .orb.one {
+            width: 280px;
+            height: 280px;
+            background: rgba(53, 240, 208, 0.35);
+            top: 80px;
+            left: -60px;
+        }
+
+        .orb.two {
+            width: 240px;
+            height: 240px;
+            background: rgba(255, 126, 219, 0.3);
+            bottom: 80px;
+            right: -40px;
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) translateX(0);
+            }
+
+            50% {
+                transform: translateY(-20px) translateX(10px);
+            }
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            padding: 28px clamp(20px, 5vw, 64px) 80px;
+        }
+
+        .hero {
+            margin-top: 90px;
+            display: grid;
+            gap: 28px;
+            justify-items: center;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 4vw, 3.6rem);
+            line-height: 1.1;
+            letter-spacing: 0.02em;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 1.05rem;
+            max-width: 560px;
+            line-height: 1.7;
+            font-family: "Palatino Linotype", "Book Antiqua", serif;
+        }
+
+        .nav-grid {
+            margin-top: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            width: min(920px, 100%);
+        }
+
+        .nav-card {
+            padding: 18px 20px;
+            border-radius: 18px;
+            background: rgba(11, 21, 36, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+            text-decoration: none;
+            color: var(--text);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .nav-card:hover,
+        .nav-card:focus-visible {
+            transform: translateY(-4px);
+            border-color: rgba(53, 240, 208, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .nav-card span {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: "Franklin Gothic Medium", "Gill Sans", sans-serif;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            color: var(--accent);
+        }
+
+        .nav-card h3 {
+            margin-top: 10px;
+            font-size: 1.3rem;
+        }
+
+        .nav-card p {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(14px);
+            animation: reveal 0.8s ease forwards;
+        }
+
+        .reveal.delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .reveal.delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes reveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 22px;
+            right: 22px;
+            z-index: 2;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            padding: 10px 16px;
+            background: rgba(8, 14, 24, 0.7);
+            color: var(--text);
+            font-family: "Franklin Gothic Medium", "Gill Sans", sans-serif;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            border-color: rgba(53, 240, 208, 0.5);
+        }
+
+        body[data-theme="light"] {
+            --bg-1: #f7f7f4;
+            --bg-2: #ffffff;
+            --accent: #1aa2a5;
+            --accent-2: #ff8ed6;
+            --text: #1c2330;
+            --muted: #4d5a6a;
+        }
+
+        body[data-theme="light"] {
+            background: radial-gradient(1200px 600px at 80% 10%, #e6ecef 0%, transparent 55%),
+                radial-gradient(800px 500px at 10% 20%, #f1f3f5 0%, transparent 60%),
+                linear-gradient(135deg, var(--bg-1), var(--bg-2));
+        }
+
+        body[data-theme="light"] .nav-card {
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 18px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        body[data-theme="light"] .theme-toggle {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: rgba(10, 20, 30, 0.15);
+            color: #1c2330;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="theme-toggle" type="button" aria-label="Toggle theme">Day</button>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="orb one" aria-hidden="true"></div>
+    <div class="orb two" aria-hidden="true"></div>
+
+    <div class="page">
+        <section class="hero">
+            <div class="reveal delay-1">
+                <h1>导航</h1>
+                <p>极简入口，一眼直达。</p>
+            </div>
+            <div class="nav-grid reveal delay-2">
+                <a class="nav-card" href="http://47.112.125.109:40157/#/">
+                    <span>Personal</span>
+                    <h3>文件快递站</h3>
+                    <p>记录灵感、写作与作品集。</p>
+                </a>
+                <a class="nav-card" href="http://minclub.top:300/#/">
+                    <span>Service</span>
+                    <h3>直播录制</h3>
+                    <p>高效 便携</p>
+                </a>
+                <a class="nav-card" href="http://47.112.125.109:40033">
+                    <span>Lab</span>
+                    <h3>网盘</h3>
+                    <p>私有云存储</p>
+                </a>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        (function () {
+            const toggle = document.querySelector(".theme-toggle");
+            const stored = localStorage.getItem("theme");
+            const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+            const initial = stored || (prefersLight ? "light" : "dark");
+
+            document.body.dataset.theme = initial;
+
+            const updateLabel = () => {
+                toggle.textContent = document.body.dataset.theme === "light" ? "Night" : "Day";
+            };
+
+            updateLabel();
+
+            toggle.addEventListener("click", () => {
+                const next = document.body.dataset.theme === "light" ? "dark" : "light";
+                document.body.dataset.theme = next;
+                localStorage.setItem("theme", next);
+                updateLabel();
+            });
+        })();
+    </script>
+</body>
+
+</html>
