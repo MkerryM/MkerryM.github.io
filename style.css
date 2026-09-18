@@ -207,7 +207,7 @@
 .faculty-profile .publication-detail strong { font-weight: 700; }
 .faculty-profile .publication-corresponding { margin-left: 8px; white-space: nowrap; }
 .faculty-profile .admission-panel { padding: 0; border: 0; background: none; }
-.faculty-profile .admission-panel p { margin: 8px 0; text-align: justify; text-indent: 2em; }
+.faculty-profile .admission-panel p { margin: 8px 0; text-align: justify; text-indent: 0; }
 .faculty-profile .sr-only {
   position: absolute !important;
   width: 1px !important;
